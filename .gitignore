@@ -1,0 +1,22 @@
+# Frontend dependencies and builds
+node_modules/
+dist/
+.env
+.env.local
+
+# Python caches and compiled files
+**/__pycache__/
+**/*.pyc
+*.pyc
+
+# Local Databases
+**/*.db
+*.db
+backend/app.db
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+.gemini/
+.system_generated/

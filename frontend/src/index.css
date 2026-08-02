@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Default: Dark Theme variables */
+  --bg-slate-deep: #080c16;        
+  --bg-card-slate: rgba(14, 22, 38, 0.65);        
+  --text-primary: #f8fafc;
+  --text-secondary: rgba(248, 250, 252, 0.5);
+  --border-color: rgba(255, 255, 255, 0.04);
+  --grid-color: rgba(255, 255, 255, 0.015);
+  --border-glow: linear-gradient(to bottom right, rgba(20, 184, 166, 0.35), rgba(99, 102, 241, 0.08), rgba(20, 184, 166, 0.03));
+  --heading-gradient: linear-gradient(135deg, #ffffff 40%, #99f6e4 100%);
+  --tooltip-bg: #09090f;
+  --tooltip-border: rgba(20, 184, 166, 0.3);
+  
+  --rainbow-gradient: linear-gradient(135deg, 
+    #0e0a1c 0%,   
+    #091326 20%,  
+    #05201d 40%,  
+    #13200d 60%,  
+    #241508 80%,  
+    #20081a 100%  
+  );
+}
+
+.light {
+  /* Light Theme variables override */
+  --bg-slate-deep: #f8fafc;        
+  --bg-card-slate: rgba(255, 255, 255, 0.75);        
+  --text-primary: #0f172a;
+  --text-secondary: rgba(15, 23, 42, 0.5);
+  --border-color: rgba(15, 23, 42, 0.06);
+  --grid-color: rgba(15, 23, 42, 0.02);
+  --border-glow: linear-gradient(to bottom right, rgba(20, 184, 166, 0.25), rgba(99, 102, 241, 0.05), rgba(20, 184, 166, 0.02));
+  --heading-gradient: linear-gradient(135deg, #0f172a 40%, #0d9488 100%);
+  --tooltip-bg: #ffffff;
+  --tooltip-border: rgba(20, 184, 166, 0.2);
+
+  --rainbow-gradient: linear-gradient(135deg, 
+    #f5f3ff 0%,   
+    #eff6ff 20%,  
+    #ecfdf5 40%,  
+    #fef3c7 60%,  
+    #fff1f2 80%,  
+    #fae8ff 100%  
+  );
+}
+
+/* Tailwind CSS v4 Theme Map Overrides */
+@theme {
+  --color-background: var(--bg-slate-deep);
+  --color-card: var(--bg-card-slate);
+  --color-border: var(--border-color);
+  --color-foreground: var(--text-primary);
+}
+
+body {
+  background-color: var(--bg-slate-deep);
+  color: var(--text-primary);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* 3D Perspective */
+.perspective-container {
+  perspective: 1200px;
+}
+
+/* Dynamic Liquid Rainbow Flow Keyframes */
+@keyframes rainbow-flow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Professional Space Background container */
+.premium-bg-container {
+  position: fixed;
+  inset: 0;
+  z-index: 1; /* Positive stack to stay above body default canvas paint */
+  background: var(--rainbow-gradient);
+  background-size: 300% 300%;
+  animation: rainbow-flow 18s ease infinite;
+  overflow: hidden;
+  transition: background 0.5s ease;
+}
+
+/* Fine Sharp Grid Lines Layer */
+.premium-grid-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3; /* Sits above gradient flow */
+  background-image: 
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Premium Gradient Border Glow */
+.gradient-border-glow {
+  position: relative;
+}
+
+.gradient-border-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--border-glow);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.3s ease, background 0.3s ease;
+}
+
+/* World-Class 3D Glassmorphic Container */
+.glass-panel-premium {
+  background: var(--bg-card-slate);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-color);
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 10px 30px rgba(255, 255, 255, 0.01);
+  transform-style: preserve-3d;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.glass-panel-premium:hover {
+  border-color: rgba(20, 184, 166, 0.25);
+  box-shadow: 
+    0 20px 50px rgba(20, 184, 166, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Light Cursor Reflections Spot */
+.cursor-specular-light {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle 140px at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255, 255, 255, 0.08), transparent 75%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.glass-panel-premium:hover .cursor-specular-light {
+  opacity: 1;
+}
+
+/* Glow Boxes */
+.glow-indigo {
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+}
+
+.glow-teal {
+  box-shadow: 0 0 30px rgba(20, 184, 166, 0.15);
+}
+
+/* Typography styles */
+h1, h2, h3, h4 {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.03em;
+  background: var(--heading-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 184, 166, 0.4);
+}
+
+/* Light Mode Utility Overrides for text contrast */
+.light .text-white {
+  color: var(--text-primary) !important;
+}
+.light .text-white\/80 {
+  color: rgba(15, 23, 42, 0.8) !important;
+}
+.light .text-white\/90 {
+  color: rgba(15, 23, 42, 0.9) !important;
+}
+.light .text-white\/70 {
+  color: rgba(15, 23, 42, 0.7) !important;
+}
+.light .text-white\/50 {
+  color: rgba(15, 23, 42, 0.5) !important;
+}
