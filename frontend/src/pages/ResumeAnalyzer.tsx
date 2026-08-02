@@ -307,7 +307,7 @@ export const ResumeAnalyzer: React.FC = () => {
                 </div>
                 {selectedVersionId && (
                   <a
-                    href={`http://localhost:8000/api/analysis/${selectedVersionId}/report`}
+                    href={`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/analysis/${selectedVersionId}/report`}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border hover:bg-card-border/50 text-xs font-bold text-foreground transition-all"
                   >
                     <Download className="w-3.5 h-3.5" />
