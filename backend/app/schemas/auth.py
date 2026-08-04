@@ -22,6 +22,17 @@ class UserResponse(UserBase):
     class Config:
         from_attributes = True
 
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+class APIKeyItem(BaseModel):
+    id: str
+    name: str
+    key_prefix: str
+    created_at: str
+    last_used: str
+
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -29,3 +40,4 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+

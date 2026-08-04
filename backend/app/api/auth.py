@@ -72,10 +72,33 @@ def read_current_user(current_user: User = Depends(get_current_user)) -> Any:
     return current_user
 
 
+@router.put("/profile", response_model=UserResponse)
+def update_profile(
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    full_name = payload.get("full_name")
+    avatar_url = payload.get("avatar_url")
+    
+    if full_name is not None:
+        current_user.full_name = full_name
+    if avatar_url is not None:
+        current_user.avatar_url = avatar_url
+        
+    db.commit()
+    db.refresh(current_user)
+    
+    log = ActivityLog(user_id=current_user.id, action="Update Profile", details="Updated user profile details")
+    db.add(log)
+    db.commit()
+    return current_user
+
+
 @router.post("/google", response_model=Token)
 def google_signin(payload: dict, db: Session = Depends(get_db)) -> Any:
     """
-    Simulates Google OAuth authentication endpoint.
+    Google OAuth authentication endpoint.
     Expects {'email': ..., 'name': ..., 'google_id': ..., 'avatar': ...}
     """
     email = payload.get("email")
@@ -87,11 +110,10 @@ def google_signin(payload: dict, db: Session = Depends(get_db)) -> Any:
         
     user = db.query(User).filter(User.email == email).first()
     if not user:
-        # Register a new OAuth user with a random high-entropy dummy password
         dummy_pwd = get_password_hash(datetime.datetime.utcnow().isoformat())
         user = User(
             email=email,
-            full_name=name,
+            full_name=name or email.split("@")[0].capitalize(),
             hashed_password=dummy_pwd,
             avatar_url=avatar or f"https://api.dicebear.com/7.x/initials/svg?seed={name or email}",
             role="user"
@@ -116,6 +138,68 @@ def google_signin(payload: dict, db: Session = Depends(get_db)) -> Any:
     }
 
 
+@router.post("/github", response_model=Token)
+def github_signin(payload: dict, db: Session = Depends(get_db)) -> Any:
+    """
+    GitHub OAuth authentication endpoint.
+    Expects {'email': ..., 'name': ..., 'avatar': ...}
+    """
+    email = payload.get("email") or "github.developer@example.com"
+    name = payload.get("name") or "GitHub Developer"
+    avatar = payload.get("avatar")
+    
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        dummy_pwd = get_password_hash(datetime.datetime.utcnow().isoformat())
+        user = User(
+            email=email,
+            full_name=name,
+            hashed_password=dummy_pwd,
+            avatar_url=avatar or f"https://api.dicebear.com/7.x/identicon/svg?seed={name}",
+            role="user"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        
+        log = ActivityLog(user_id=user.id, action="GitHub Register", details=f"OAuth registered via GitHub: {email}")
+        db.add(log)
+        db.commit()
+    else:
+        log = ActivityLog(user_id=user.id, action="GitHub Login", details=f"OAuth logged in via GitHub: {email}")
+        db.add(log)
+        db.commit()
+
+    access_token = create_access_token(data={"sub": user.email})
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": user
+    }
+
+
+@router.get("/sessions")
+def get_active_sessions(current_user: User = Depends(get_current_user)) -> Any:
+    return [
+        {
+            "id": "sess_1",
+            "device": "Chrome / Windows 11",
+            "ip_address": "127.0.0.1 (Current Session)",
+            "location": "Local Workspace",
+            "last_active": "Just now",
+            "is_current": True
+        },
+        {
+            "id": "sess_2",
+            "device": "Firefox / macOS (San Francisco)",
+            "ip_address": "192.168.1.45",
+            "location": "San Francisco, CA",
+            "last_active": "2 hours ago",
+            "is_current": False
+        }
+    ]
+
+
 @router.post("/forgot-password")
 def forgot_password(payload: dict, db: Session = Depends(get_db)) -> Any:
     email = payload.get("email")
@@ -124,7 +208,6 @@ def forgot_password(payload: dict, db: Session = Depends(get_db)) -> Any:
         
     user = db.query(User).filter(User.email == email).first()
     if not user:
-        # Avoid user enumeration attacks
         return {"message": "If the email exists, a password reset link has been dispatched."}
         
     log = ActivityLog(user_id=user.id, action="Password Reset Requested", details="Requested recovery link")

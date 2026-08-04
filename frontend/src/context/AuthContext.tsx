@@ -18,6 +18,8 @@ interface AuthContextType {
   register: (email: string, password: string, fullName: string) => Promise<void>;
   logout: () => void;
   googleSignIn: (email: string, name: string, avatar?: string) => Promise<void>;
+  githubSignIn: (email?: string, name?: string, avatar?: string) => Promise<void>;
+  updateProfile: (fullName: string, avatarUrl?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -93,17 +95,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(access_token);
   };
 
+  const githubSignIn = async (email?: string, name?: string, avatar?: string) => {
+    const response = await axios.post('/api/auth/github', {
+      email: email || 'github.user@example.com',
+      name: name || 'GitHub Developer',
+      avatar: avatar || 'https://api.dicebear.com/7.x/identicon/svg?seed=GitHubUser'
+    });
+    const { access_token, user: userData } = response.data;
+    setUser(userData);
+    setToken(access_token);
+  };
+
+  const updateProfile = async (fullName: string, avatarUrl?: string) => {
+    const res = await axios.put('/api/auth/profile', {
+      full_name: fullName,
+      avatar_url: avatarUrl
+    });
+    setUser(res.data);
+  };
+
   const logout = () => {
     setUser(null);
     setToken(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, googleSignIn }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout, googleSignIn, githubSignIn, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
