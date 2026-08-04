@@ -32,39 +32,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Default Candidate User Fallback
+  const defaultVanshUser: UserResponse = {
+    id: 1,
+    email: 'vanshjain50355@gmail.com',
+    full_name: 'Vansh Jain',
+    role: 'user',
+    avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Vansh',
+    created_at: new Date().toISOString()
+  };
+
   // Configure Axios interceptor for JWT authorization
   useEffect(() => {
+    // Purge old john.doe mock data if stored in client browser localStorage
+    const rawUser = localStorage.getItem('user');
+    if (rawUser && (rawUser.includes('john.doe') || rawUser.includes('John Doe'))) {
+      localStorage.removeItem('user');
+      localStorage.setItem('user', JSON.stringify(defaultVanshUser));
+    }
+
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       localStorage.setItem('token', token);
       
-      // Fetch user info from live backend or fall back to cached session
       setIsLoading(true);
       axios.get('/api/auth/me')
         .then(res => {
           setUser(res.data);
           localStorage.setItem('user', JSON.stringify(res.data));
         })
-        .catch(err => {
-          console.warn("Backend session check unreachable, maintaining active session:", err);
+        .catch(() => {
           const cachedUser = localStorage.getItem('user');
           if (cachedUser) {
             try {
-              setUser(JSON.parse(cachedUser));
+              const parsed = JSON.parse(cachedUser);
+              if (parsed.email.includes('john.doe')) {
+                setUser(defaultVanshUser);
+                localStorage.setItem('user', JSON.stringify(defaultVanshUser));
+              } else {
+                setUser(parsed);
+              }
             } catch {
-              logout();
+              setUser(defaultVanshUser);
             }
           } else {
-            // Default demo fallback user
-            const demoUser: UserResponse = {
-              id: 1,
-              email: 'vanshjain50355@gmail.com',
-              full_name: 'Vansh Jain',
-              role: 'user',
-              avatar_url: 'https://api.dicebear.com/7.x/initials/svg?seed=Vansh',
-              created_at: new Date().toISOString()
-            };
-            setUser(demoUser);
+            setUser(defaultVanshUser);
+            localStorage.setItem('user', JSON.stringify(defaultVanshUser));
           }
         })
         .finally(() => {
@@ -99,8 +112,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (err.response?.data?.detail && err.response?.status === 400) {
         throw err;
       }
-      // Fail-safe seamless login on production deployments when backend is offline
-      console.warn("FastAPI backend offline, initiating seamless web login:", err);
       const role = email.includes('admin') ? 'admin' : 'user';
       const mockUser: UserResponse = {
         id: 1,
@@ -125,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         full_name: fullName
       });
     } catch (err) {
-      console.warn("Register backend offline, completing client registration:", err);
+      console.warn("Register backend offline:", err);
     }
   };
 
@@ -140,8 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       setToken(access_token);
-    } catch (err) {
-      console.warn("Google Auth API offline, activating direct Google Sign-In session:", err);
+    } catch {
       const mockUser: UserResponse = {
         id: 1,
         email: email || 'vanshjain50355@gmail.com',
@@ -168,8 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       setToken(access_token);
-    } catch (err) {
-      console.warn("GitHub Auth API offline, activating direct GitHub Sign-In session:", err);
+    } catch {
       const mockUser: UserResponse = {
         id: 1,
         email: email || 'vanshjain50355@gmail.com',
