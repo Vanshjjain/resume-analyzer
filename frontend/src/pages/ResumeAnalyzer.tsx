@@ -4,22 +4,17 @@ import axios from 'axios';
 import { GlassCard } from '../components/GlassCard';
 import { 
   FileUp, 
-  CheckCircle2, 
   Sparkles, 
-  Download, 
-  Trash2, 
   Plus, 
   Copy, 
   Check, 
   AlertCircle,
-  FileText,
   Layers,
   Search,
   CheckCircle,
   XCircle,
   Sliders,
   Upload,
-  ArrowRight,
   ShieldCheck,
   RefreshCw
 } from 'lucide-react';

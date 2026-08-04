@@ -19,9 +19,7 @@ import {
   Moon, 
   ShieldAlert,
   Terminal,
-  Cpu,
-  Zap,
-  Activity
+  Cpu
 } from 'lucide-react';
 
 interface LayoutProps {

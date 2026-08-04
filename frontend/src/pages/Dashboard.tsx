@@ -6,24 +6,17 @@ import { useAuth } from '../context/AuthContext';
 import { 
   FileUp, 
   ArrowRight,
-  Activity,
   CheckCircle2,
   AlertTriangle,
   Target,
-  Clock,
   Sparkles,
   ShieldCheck,
   TrendingUp,
   FileText,
-  Users,
-  Server,
-  Zap,
   Lock,
-  Cpu,
   Terminal,
   Crosshair,
-  Radio,
-  Sliders
+  Radio
 } from 'lucide-react';
 import {
   AreaChart,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { GlassCard } from '../components/GlassCard';
-import { Briefcase, CheckCircle, Lightbulb, Check, Sparkles, Link as LinkIcon, AlertTriangle, Target, Search, ArrowRight } from 'lucide-react';
+import { Briefcase, CheckCircle, Lightbulb, Check, Sparkles, Link as LinkIcon, Target, Search } from 'lucide-react';
 
 export const JobMatch: React.FC = () => {
   const [resumes, setResumes] = useState<any[]>([]);
