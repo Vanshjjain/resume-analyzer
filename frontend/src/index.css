@@ -3,48 +3,48 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Default: Dark Theme variables */
-  --bg-slate-deep: #080c16;        
-  --bg-card-slate: rgba(14, 22, 38, 0.65);        
-  --text-primary: #f8fafc;
-  --text-secondary: rgba(248, 250, 252, 0.5);
-  --border-color: rgba(255, 255, 255, 0.04);
-  --grid-color: rgba(255, 255, 255, 0.015);
-  --border-glow: linear-gradient(to bottom right, rgba(20, 184, 166, 0.35), rgba(99, 102, 241, 0.08), rgba(20, 184, 166, 0.03));
-  --heading-gradient: linear-gradient(135deg, #ffffff 40%, #99f6e4 100%);
-  --tooltip-bg: #09090f;
-  --tooltip-border: rgba(20, 184, 166, 0.3);
+  /* Default: Dark Yellow / Dark Amber Obsidian Theme variables */
+  --bg-slate-deep: #0e0c05;        
+  --bg-card-slate: rgba(22, 18, 8, 0.8);        
+  --text-primary: #fef3c7;
+  --text-secondary: rgba(254, 243, 199, 0.55);
+  --border-color: rgba(245, 158, 11, 0.15);
+  --grid-color: rgba(245, 158, 11, 0.035);
+  --border-glow: linear-gradient(to bottom right, rgba(245, 158, 11, 0.45), rgba(217, 119, 6, 0.2), rgba(245, 158, 11, 0.05));
+  --heading-gradient: linear-gradient(135deg, #ffffff 40%, #fcd34d 100%);
+  --tooltip-bg: #0e0c05;
+  --tooltip-border: rgba(245, 158, 11, 0.35);
   
   --rainbow-gradient: linear-gradient(135deg, 
-    #0e0a1c 0%,   
-    #091326 20%,  
-    #05201d 40%,  
-    #13200d 60%,  
-    #241508 80%,  
-    #20081a 100%  
+    #0e0c05 0%,   
+    #141004 20%,  
+    #1d1606 40%,  
+    #241a06 60%,  
+    #191204 80%,  
+    #0d0a03 100%  
   );
 }
 
 .light {
   /* Light Theme variables override */
-  --bg-slate-deep: #f8fafc;        
-  --bg-card-slate: rgba(255, 255, 255, 0.75);        
-  --text-primary: #0f172a;
-  --text-secondary: rgba(15, 23, 42, 0.5);
-  --border-color: rgba(15, 23, 42, 0.06);
-  --grid-color: rgba(15, 23, 42, 0.02);
-  --border-glow: linear-gradient(to bottom right, rgba(20, 184, 166, 0.25), rgba(99, 102, 241, 0.05), rgba(20, 184, 166, 0.02));
-  --heading-gradient: linear-gradient(135deg, #0f172a 40%, #0d9488 100%);
+  --bg-slate-deep: #fffbeb;        
+  --bg-card-slate: rgba(255, 251, 235, 0.85);        
+  --text-primary: #451a03;
+  --text-secondary: rgba(69, 26, 3, 0.55);
+  --border-color: rgba(217, 119, 6, 0.15);
+  --grid-color: rgba(217, 119, 6, 0.03);
+  --border-glow: linear-gradient(to bottom right, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.1), rgba(245, 158, 11, 0.03));
+  --heading-gradient: linear-gradient(135deg, #451a03 40%, #b45309 100%);
   --tooltip-bg: #ffffff;
-  --tooltip-border: rgba(20, 184, 166, 0.2);
+  --tooltip-border: rgba(245, 158, 11, 0.25);
 
   --rainbow-gradient: linear-gradient(135deg, 
-    #f5f3ff 0%,   
-    #eff6ff 20%,  
-    #ecfdf5 40%,  
+    #fffbeb 0%,   
+    #fef3c7 20%,  
+    #fde68a 40%,  
     #fef3c7 60%,  
-    #fff1f2 80%,  
-    #fae8ff 100%  
+    #fffbeb 80%,  
+    #fef8e7 100%  
   );
 }
 
@@ -69,18 +69,18 @@ body {
   perspective: 1200px;
 }
 
-/* Dynamic Liquid Rainbow Flow Keyframes */
+/* Dynamic Liquid Amber Flow Keyframes */
 @keyframes rainbow-flow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
-/* Professional Space Background container */
+/* Dark Amber Space Background container */
 .premium-bg-container {
   position: fixed;
   inset: 0;
-  z-index: 1; /* Positive stack to stay above body default canvas paint */
+  z-index: 1;
   background: var(--rainbow-gradient);
   background-size: 300% 300%;
   animation: rainbow-flow 18s ease infinite;
@@ -92,7 +92,7 @@ body {
 .premium-grid-overlay {
   position: absolute;
   inset: 0;
-  z-index: 3; /* Sits above gradient flow */
+  z-index: 3;
   background-image: 
     linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
     linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
@@ -128,19 +128,19 @@ body {
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-color);
   box-shadow: 
-    0 10px 40px rgba(0, 0, 0, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 10px 30px rgba(255, 255, 255, 0.01);
+    0 10px 40px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(245, 158, 11, 0.1),
+    inset 0 10px 30px rgba(245, 158, 11, 0.02);
   transform-style: preserve-3d;
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
 }
 
 .glass-panel-premium:hover {
-  border-color: rgba(20, 184, 166, 0.25);
+  border-color: rgba(245, 158, 11, 0.35);
   box-shadow: 
-    0 20px 50px rgba(20, 184, 166, 0.08),
-    0 8px 24px rgba(0, 0, 0, 0.5),
-    inset 0 1px 1px rgba(255, 255, 255, 0.1);
+    0 20px 50px rgba(245, 158, 11, 0.12),
+    0 8px 24px rgba(0, 0, 0, 0.65),
+    inset 0 1px 1px rgba(245, 158, 11, 0.15);
 }
 
 /* Light Cursor Reflections Spot */
@@ -149,7 +149,7 @@ body {
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  background: radial-gradient(circle 140px at var(--mouse-x, 0) var(--mouse-y, 0), rgba(255, 255, 255, 0.08), transparent 75%);
+  background: radial-gradient(circle 140px at var(--mouse-x, 0) var(--mouse-y, 0), rgba(245, 158, 11, 0.12), transparent 75%);
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: 1;
@@ -161,11 +161,11 @@ body {
 
 /* Glow Boxes */
 .glow-indigo {
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
 }
 
 .glow-teal {
-  box-shadow: 0 0 30px rgba(20, 184, 166, 0.15);
+  box-shadow: 0 0 30px rgba(217, 119, 6, 0.2);
 }
 
 /* Typography styles */
@@ -186,11 +186,11 @@ h1, h2, h3, h4 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(245, 158, 11, 0.1);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(20, 184, 166, 0.4);
+  background: rgba(245, 158, 11, 0.4);
 }
 
 /* Light Mode Utility Overrides for text contrast */
@@ -198,14 +198,14 @@ h1, h2, h3, h4 {
   color: var(--text-primary) !important;
 }
 .light .text-white\/80 {
-  color: rgba(15, 23, 42, 0.8) !important;
+  color: rgba(69, 26, 3, 0.8) !important;
 }
 .light .text-white\/90 {
-  color: rgba(15, 23, 42, 0.9) !important;
+  color: rgba(69, 26, 3, 0.9) !important;
 }
 .light .text-white\/70 {
-  color: rgba(15, 23, 42, 0.7) !important;
+  color: rgba(69, 26, 3, 0.7) !important;
 }
 .light .text-white\/50 {
-  color: rgba(15, 23, 42, 0.5) !important;
+  color: rgba(69, 26, 3, 0.5) !important;
 }
