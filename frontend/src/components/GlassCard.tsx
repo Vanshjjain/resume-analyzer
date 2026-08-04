@@ -21,11 +21,11 @@ export const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', 
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    const rotateX = ((centerY - y) / centerY) * 6; 
-    const rotateY = ((x - centerX) / centerX) * 6;
+    const rotateX = ((centerY - y) / centerY) * 8; 
+    const rotateY = ((x - centerX) / centerX) * 8;
 
     setStyle({
-      transform: `perspective(1200px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`,
+      transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-2px)`,
       '--mouse-x': `${x}px`,
       '--mouse-y': `${y}px`,
     } as React.CSSProperties);
@@ -33,7 +33,7 @@ export const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', 
 
   const handleMouseLeave = () => {
     setStyle({
-      transform: 'perspective(1200px) rotateX(0deg) rotateY(0deg) translateY(0px)',
+      transform: 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)',
     });
   };
 
@@ -44,11 +44,23 @@ export const GlassCard: React.FC<GlassCardProps> = ({ children, className = '', 
       onMouseLeave={handleMouseLeave}
       onClick={onClick}
       style={style}
-      className={`glass-panel-premium gradient-border-glow rounded-3xl p-6 relative overflow-hidden transition-all duration-200 ${
-        onClick ? 'cursor-pointer hover:bg-[#0d0d18]/80' : ''
+      className={`glass-panel-premium cyber-chamfer-card p-6 relative overflow-hidden transition-all duration-200 ${
+        onClick ? 'cursor-pointer hover:border-[#00f0ff]' : ''
       } ${className}`}
     >
-      <div className="cursor-specular-light" />
+      {/* Specular Neon Cursor Reflection Spot */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-0"
+        style={{
+          background: `radial-gradient(150px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 240, 255, 0.15), transparent 80%)`
+        }}
+      />
+
+      {/* Cyberpunk Tactical Rim Indicator */}
+      <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-[#00f0ff] pointer-events-none z-10" />
+      <div className="absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-[#ff007f] pointer-events-none z-10" />
+      <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-[#00ff66] pointer-events-none z-10" />
+
       <div className="relative z-10">
         {children}
       </div>

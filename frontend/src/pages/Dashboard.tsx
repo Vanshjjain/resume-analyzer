@@ -19,7 +19,11 @@ import {
   Server,
   Zap,
   Lock,
-  Cpu
+  Cpu,
+  Terminal,
+  Crosshair,
+  Radio,
+  Sliders
 } from 'lucide-react';
 import {
   AreaChart,
@@ -63,11 +67,11 @@ export const Dashboard: React.FC = () => {
   ]);
 
   const [skillChartData, setSkillChartData] = useState([
-    { name: 'Languages', value: 85, color: '#6366f1' },
-    { name: 'Tech Skills', value: 75, color: '#ec4899' },
-    { name: 'Experience', value: 80, color: '#10b981' },
-    { name: 'Projects', value: 85, color: '#f59e0b' },
-    { name: 'Achievements', value: 90, color: '#06b6d4' },
+    { name: 'Languages', value: 85, color: '#00f0ff' },
+    { name: 'Tech Skills', value: 75, color: '#ff007f' },
+    { name: 'Experience', value: 80, color: '#00ff66' },
+    { name: 'Projects', value: 85, color: '#ffb800' },
+    { name: 'Achievements', value: 90, color: '#00f0ff' },
   ]);
 
   const [careerPaths, setCareerPaths] = useState<any[]>([
@@ -100,11 +104,11 @@ export const Dashboard: React.FC = () => {
             const parsed = latestVer.parsed_data || {};
             const skillsCount = parsed.skills?.length || 0;
             setSkillChartData([
-              { name: 'Languages', value: parsed.languages?.length ? 85 : 60, color: '#6366f1' },
-              { name: 'Tech Skills', value: Math.min(skillsCount * 8, 95) || 50, color: '#ec4899' },
-              { name: 'Experience', value: parsed.experience?.length ? 80 : 40, color: '#10b981' },
-              { name: 'Projects', value: parsed.projects?.length ? 85 : 45, color: '#f59e0b' },
-              { name: 'Achievements', value: parsed.achievements?.length ? 90 : 35, color: '#06b6d4' },
+              { name: 'Languages', value: parsed.languages?.length ? 85 : 60, color: '#00f0ff' },
+              { name: 'Tech Skills', value: Math.min(skillsCount * 8, 95) || 50, color: '#ff007f' },
+              { name: 'Experience', value: parsed.experience?.length ? 80 : 40, color: '#00ff66' },
+              { name: 'Projects', value: parsed.projects?.length ? 85 : 45, color: '#ffb800' },
+              { name: 'Achievements', value: parsed.achievements?.length ? 90 : 35, color: '#00f0ff' },
             ]);
 
             const recsRes = await axios.get(`/api/jobs/${latestVer.id}/recommendations`);
@@ -152,10 +156,10 @@ export const Dashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[65vh]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-9 h-9 border-3 border-primary/20 border-t-primary rounded-full animate-spin" />
-          <p className="text-xs text-foreground/40 font-semibold tracking-wider uppercase">Loading Executive Workspace...</p>
+      <div className="flex items-center justify-center min-h-[65vh] font-mono-hud text-[#00f0ff]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-3 border-[#00f0ff]/20 border-t-[#00f0ff] rounded-full animate-spin glow-cyan" />
+          <p className="text-xs font-bold tracking-widest uppercase animate-pulse">[INITIALIZING_CYBERPUNK_HUD...]</p>
         </div>
       </div>
     );
@@ -164,363 +168,290 @@ export const Dashboard: React.FC = () => {
   const totalResumes = resumes.length;
   const latestResume = resumes[0];
 
-  // Helper for ATS grade color coding
-  const getGradeColor = (score: number) => {
-    if (score >= 80) return { text: 'text-emerald-400', border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', hex: '#10b981', label: 'Excellent' };
-    if (score >= 60) return { text: 'text-amber-400', border: 'border-amber-500/30', bg: 'bg-amber-500/10', hex: '#f59e0b', label: 'Good' };
-    return { text: 'text-rose-400', border: 'border-rose-500/30', bg: 'bg-rose-500/10', hex: '#f43f5e', label: 'Needs Improvement' };
-  };
-
-  const gradeInfo = getGradeColor(atsScore);
-
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-12 font-mono-hud">
       
-      {/* Top Bar Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/40 pb-6">
+      {/* Top Cyber HUD Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#00f0ff]/20 pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-[10px] text-primary font-bold uppercase tracking-widest">Active Workspace</span>
+            <span className="text-[10px] text-[#00f0ff] font-bold uppercase tracking-widest">// ACTIVE_TERMINAL_NODE:</span>
             {user?.role === 'admin' ? (
-              <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/25 text-indigo-400 text-[10px] font-extrabold tracking-wide uppercase">
-                Admin Privilege
+              <span className="px-2.5 py-0.5 rounded bg-[#ff007f]/20 border border-[#ff007f]/40 text-[#ff007f] text-[10px] font-extrabold uppercase tracking-wider">
+                [ADMIN_OPERATIVE]
               </span>
             ) : (
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[10px] font-extrabold tracking-wide uppercase">
-                Candidate Account
+              <span className="px-2.5 py-0.5 rounded bg-[#00ff66]/20 border border-[#00ff66]/40 text-[#00ff66] text-[10px] font-extrabold uppercase tracking-wider">
+                [CANDIDATE_HUD]
               </span>
             )}
           </div>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            {user?.role === 'admin' ? 'System Operations Center' : 'Executive Dashboard'}
+          <h1 className="text-3xl font-extrabold text-white tracking-wider uppercase">
+            {user?.role === 'admin' ? 'OPERATIONS_CONTROL_CENTER' : 'EXECUTIVE_TERMINAL_HUD'}
           </h1>
         </div>
+
         <div className="flex items-center gap-3.5">
-          <span className="text-xs font-semibold text-foreground/45 flex items-center gap-1.5 bg-card-border/10 border border-border/20 px-3 py-2 rounded-xl">
-            <Clock className="w-3.5 h-3.5" />
-            {new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+          <span className="text-xs font-bold text-[#00f0ff]/70 flex items-center gap-2 bg-[#070a12] border border-[#00f0ff]/30 px-3.5 py-2 rounded-xl">
+            <Radio className="w-3.5 h-3.5 text-[#00ff66] animate-pulse" />
+            <span>{new Date().toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
           </span>
+          
           <button
             onClick={() => navigate('/analyzer')}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all"
+            className="cyber-button-tactical px-6 py-2.5 bg-[#00f0ff] hover:bg-[#00f0ff]/80 text-black text-xs font-extrabold shadow-lg shadow-[#00f0ff]/25 flex items-center gap-2"
           >
             <FileUp className="w-4 h-4" />
-            <span>Upload Resume</span>
+            <span>[UPLOAD_RESUME]</span>
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center gap-3 text-xs">
+        <div className="p-4 rounded-xl bg-[#ff007f]/10 border border-[#ff007f]/40 text-[#ff007f] flex items-center gap-3 text-xs">
           <AlertTriangle className="w-4.5 h-4.5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* Modern Stat Cards Grid with Lucide Icons & Dynamic Indicators */}
+      {/* Cyberpunk Stat Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
-        {user?.role === 'admin' ? (
-          <>
-            {/* Admin Metric 1: System Registrations */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">Total User Registrations</span>
-                  <h2 className="text-3xl font-extrabold text-white mt-1">{adminMetrics?.total_user_registrations || 28}</h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-                  <Users className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>+4 new this week</span>
-              </div>
-            </GlassCard>
+        {/* Metric 1: Total Scans */}
+        <GlassCard className="p-5 flex flex-col justify-between space-y-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-[10px] font-bold text-[#00f0ff]/60 uppercase tracking-widest block">// TOTAL_SCANS_RUN</span>
+              <h2 className="text-3xl font-extrabold text-white mt-1">{totalResumes || 1}</h2>
+            </div>
+            <div className="p-3 rounded-xl bg-[#00f0ff]/10 border border-[#00f0ff]/30 text-[#00f0ff] glow-cyan">
+              <FileText className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-[#00ff66] font-bold">
+            <TrendingUp className="w-3.5 h-3.5" />
+            <span>+3 ITERATIONS_AUDITED</span>
+          </div>
+        </GlassCard>
 
-            {/* Admin Metric 2: Global Scans Run */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">Global Scans Executed</span>
-                  <h2 className="text-3xl font-extrabold text-white mt-1">{adminMetrics?.system_scans_run || 142}</h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
-                  <FileText className="w-5 h-5" />
-                </div>
+        {/* Metric 2: ATS Grade */}
+        <GlassCard className="p-5 flex flex-col justify-between space-y-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-[10px] font-bold text-[#00f0ff]/60 uppercase tracking-widest block">// AVERAGE_ATS_INDEX</span>
+              <div className="flex items-baseline gap-2 mt-1">
+                <h2 className="text-3xl font-extrabold text-[#00ff66]">{atsScore}</h2>
+                <span className="text-xs font-bold text-[#00f0ff]/40">/ 100</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>+18% load handling</span>
-              </div>
-            </GlassCard>
+            </div>
+            <div className="p-3 rounded-xl bg-[#00ff66]/10 border border-[#00ff66]/30 text-[#00ff66] glow-green">
+              <Sparkles className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-[#00ff66] font-bold">
+            <span className="px-2 py-0.5 rounded bg-[#00ff66]/15 border border-[#00ff66]/30 text-[10px] uppercase">
+              HIGH_COMPLIANCE
+            </span>
+            <span className="text-[#00f0ff]/50 text-[10px]">+12% vs v1</span>
+          </div>
+        </GlassCard>
 
-            {/* Admin Metric 3: System API Usage */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">System API Load</span>
-                  <h2 className="text-2xl font-extrabold text-white mt-1 truncate">{adminMetrics?.system_api_usage || '482 reqs/day'}</h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
-                  <Zap className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-foreground/50 font-medium">
-                <Cpu className="w-3.5 h-3.5" />
-                <span>Average Latency: 1.2ms</span>
-              </div>
-            </GlassCard>
+        {/* Metric 3: Target Fit */}
+        <GlassCard className="p-5 flex flex-col justify-between space-y-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-[10px] font-bold text-[#00f0ff]/60 uppercase tracking-widest block">// TARGET_ROLE_FIT</span>
+              <h2 className="text-3xl font-extrabold text-[#ff007f] mt-1">{careerPaths[0]?.match || 90}%</h2>
+            </div>
+            <div className="p-3 rounded-xl bg-[#ff007f]/10 border border-[#ff007f]/30 text-[#ff007f] glow-magenta">
+              <Crosshair className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-[#ff007f] font-bold truncate">
+            <span className="truncate">{careerPaths[0]?.role || 'Backend Engineer'}</span>
+          </div>
+        </GlassCard>
 
-            {/* Admin Metric 4: Server Health */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">Server Health</span>
-                  <h2 className="text-2xl font-extrabold text-emerald-400 mt-1">99.98%</h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                  <Server className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>FastAPI Service Online</span>
-              </div>
-            </GlassCard>
-          </>
-        ) : (
-          <>
-            {/* User Metric 1: Total Scans Run */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">Total Scans Run</span>
-                  <h2 className="text-3xl font-extrabold text-white mt-1">{totalResumes || 1}</h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
-                  <FileText className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
-                <TrendingUp className="w-3.5 h-3.5" />
-                <span>+3 version iterations</span>
-              </div>
-            </GlassCard>
-
-            {/* User Metric 2: Average ATS Grade with Color-Coded Ring */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">Average ATS Grade</span>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <h2 className={`text-3xl font-extrabold ${gradeInfo.text}`}>{atsScore}</h2>
-                    <span className="text-xs font-bold text-foreground/45">/ 100</span>
-                  </div>
-                </div>
-                {/* Miniature Circular Ring Indicator */}
-                <div className="relative w-12 h-12 flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="14" stroke="rgba(255, 255, 255, 0.08)" strokeWidth="3.5" fill="transparent" />
-                    <circle 
-                      cx="18" 
-                      cy="18" 
-                      r="14" 
-                      stroke={gradeInfo.hex} 
-                      strokeWidth="3.5" 
-                      fill="transparent" 
-                      strokeDasharray={2 * Math.PI * 14}
-                      strokeDashoffset={2 * Math.PI * 14 * (1 - atsScore / 100)}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                  <span className={`absolute text-[10px] font-extrabold ${gradeInfo.text}`}>{atsScore}%</span>
-                </div>
-              </div>
-              <div className={`flex items-center gap-1.5 text-xs font-semibold ${gradeInfo.text}`}>
-                <span className={`px-2 py-0.5 rounded-full ${gradeInfo.bg} ${gradeInfo.border} text-[10px] uppercase font-bold`}>
-                  {gradeInfo.label}
-                </span>
-                <span className="text-foreground/45 text-[10px]">+12% vs initial draft</span>
-              </div>
-            </GlassCard>
-
-            {/* User Metric 3: Role Fit Match */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">Target Role Fit</span>
-                  <h2 className="text-3xl font-extrabold text-white mt-1">{careerPaths[0]?.match || 90}%</h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-pink-500/10 border border-pink-500/20 text-pink-400">
-                  <Target className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-pink-400 font-semibold truncate">
-                <Sparkles className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{careerPaths[0]?.role || 'Backend Engineer'}</span>
-              </div>
-            </GlassCard>
-
-            {/* User Metric 4: Security Health */}
-            <GlassCard className="p-5 flex flex-col justify-between relative overflow-hidden space-y-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <span className="text-[10px] font-bold text-foreground/45 uppercase tracking-wider block">Security & Status</span>
-                  <h2 className="text-xl font-extrabold text-emerald-400 mt-1">Verified</h2>
-                </div>
-                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
-                <Lock className="w-3.5 h-3.5" />
-                <span>JWT 256-bit Encrypted</span>
-              </div>
-            </GlassCard>
-          </>
-        )}
+        {/* Metric 4: Cyber Security Health */}
+        <GlassCard className="p-5 flex flex-col justify-between space-y-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-[10px] font-bold text-[#00f0ff]/60 uppercase tracking-widest block">// SYSTEM_SECURITY</span>
+              <h2 className="text-xl font-extrabold text-[#00ff66] mt-1">[ENCRYPTED]</h2>
+            </div>
+            <div className="p-3 rounded-xl bg-[#00ff66]/10 border border-[#00ff66]/30 text-[#00ff66] glow-green">
+              <ShieldCheck className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="flex items-center gap-1.5 text-xs text-[#00ff66] font-bold">
+            <Lock className="w-3.5 h-3.5" />
+            <span>JWT_256_ACTIVE</span>
+          </div>
+        </GlassCard>
 
       </div>
 
-      {/* Main Workspace Grid */}
+      {/* Main 3D Cyber HUD Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left Col (2 cols wide): Document Audit & Analytics */}
+        {/* Left Column (2 Cols): Active File & 3D Holographic Dial */}
         <div className="lg:col-span-2 space-y-8">
           
-          {/* Active Resume Audit Card */}
-          {latestResume ? (
-            <GlassCard className="space-y-6 relative overflow-hidden">
-              <div className="flex items-center justify-between border-b border-border/40 pb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {/* Active Document Card (2 cols wide) */}
+            <GlassCard className="md:col-span-2 space-y-5 relative overflow-hidden flex flex-col justify-between">
+              <div className="flex items-center justify-between border-b border-[#00f0ff]/20 pb-3">
                 <div>
-                  <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest block mb-0.5">Audited Resume File</span>
-                  <h3 className="font-extrabold text-lg text-white">{latestResume.original_name}</h3>
+                  <span className="text-[10px] font-bold text-[#00f0ff]/50 uppercase tracking-widest block">// ACTIVE_FILE_PAYLOAD</span>
+                  <h3 className="font-extrabold text-lg text-white">{latestResume?.original_name || 'Vansh_Jain_Resume.pdf'}</h3>
                 </div>
-                <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-extrabold text-[10px] uppercase tracking-wider">
-                  v2 Active
+                <span className="px-2.5 py-1 rounded bg-[#00ff66]/15 border border-[#00ff66]/40 text-[#00ff66] font-bold text-[10px] uppercase">
+                  V2_AUDITED
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-foreground/75 leading-relaxed">
-                <div className="space-y-2">
-                  <span className="block text-[10px] font-bold text-foreground/40 uppercase tracking-wider">Audit Summary</span>
-                  <p className="text-foreground/80">
-                    High ATS compliance rating. Structure contains clear headings, bulleted action statements, and valid contact links.
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <span className="block text-[10px] font-bold text-foreground/40 uppercase tracking-wider">Verified Strengths</span>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Single-column standard layout</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                      <span>Quantifiable metric impact statements</span>
-                    </div>
+              <div className="space-y-3 text-xs text-[#00f0ff]/80">
+                <span className="block text-[10px] font-bold text-[#00f0ff]/50 uppercase tracking-widest">// AUDIT_SUMMARY</span>
+                <p className="leading-relaxed text-[#00f0ff]/90">
+                  Excellent layout compliance. Technical capabilities structured with high-impact power metrics and validated links.
+                </p>
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#00ff66]" />
+                    <span>Single-column standard layout verified</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#00ff66]" />
+                    <span>Contact headers & links parsed</span>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-border/20 flex justify-between items-center text-xs">
-                <span className="text-foreground/45">Scanned: {new Date(latestResume.created_at).toLocaleDateString()}</span>
+              <div className="pt-3 border-t border-[#00f0ff]/20 flex justify-between items-center text-xs">
+                <span className="text-[#00f0ff]/40">TIMESTAMP: {new Date().toLocaleDateString()}</span>
                 <button
                   onClick={() => navigate('/analyzer')}
-                  className="flex items-center gap-1 text-primary font-bold hover:underline"
+                  className="flex items-center gap-1 text-[#00f0ff] font-bold hover:underline"
                 >
-                  <span>Open Full ATS Analyzer</span>
+                  <span>[OPEN_ANALYZER_STUDIO]</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
             </GlassCard>
-          ) : (
-            <GlassCard className="flex flex-col items-center justify-center text-center py-12 space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-                <FileUp className="w-7 h-7" />
+
+            {/* 3D Holographic Cylindrical ATS Index Gauge Card */}
+            <GlassCard className="flex flex-col items-center justify-center p-6 text-center relative overflow-hidden space-y-3">
+              <span className="text-[10px] font-bold text-[#00f0ff]/60 uppercase tracking-widest block">// 3D_ATS_GAUGE</span>
+              
+              {/* Holographic Cylindrical Ring Gauge */}
+              <div className="relative w-36 h-36 flex items-center justify-center my-2">
+                {/* Background Rotating Ring */}
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="42" stroke="rgba(0, 240, 255, 0.08)" strokeWidth="8" fill="transparent" />
+                  <circle 
+                    cx="50" 
+                    cy="50" 
+                    r="42" 
+                    stroke="url(#hologramGradient)" 
+                    strokeWidth="8" 
+                    fill="transparent" 
+                    strokeDasharray={2 * Math.PI * 42}
+                    strokeDashoffset={2 * Math.PI * 42 * (1 - atsScore / 100)}
+                    strokeLinecap="round"
+                    className="glow-cyan"
+                  />
+                  <defs>
+                    <linearGradient id="hologramGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#00f0ff" />
+                      <stop offset="50%" stopColor="#ff007f" />
+                      <stop offset="100%" stopColor="#00ff66" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+
+                {/* Projected 3D Holographic Typography */}
+                <div className="absolute flex flex-col items-center justify-center">
+                  <span className="text-4xl font-extrabold text-white tracking-widest drop-shadow-[0_0_12px_#00f0ff]">{atsScore}</span>
+                  <span className="text-[9px] text-[#00ff66] font-bold uppercase tracking-widest mt-0.5">ATS_INDEX</span>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Upload your first resume</h3>
-                <p className="text-xs text-foreground/45 max-w-sm mt-1">Get real-time ATS scoring, keyword gap analysis, and AI optimizations.</p>
-              </div>
-              <button
-                onClick={() => navigate('/analyzer')}
-                className="px-5 py-2.5 rounded-xl bg-primary text-white font-bold text-xs shadow-md"
-              >
-                Start Resume Scan
-              </button>
+
+              <span className="text-[10px] text-[#00f0ff]/60 leading-tight">HOLOGRAPHIC ATS FILTER COMPLIANT</span>
             </GlassCard>
-          )}
+
+          </div>
 
           {/* Charts Row */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <GlassCard className="space-y-5">
-              <div className="flex items-center justify-between border-b border-border/40 pb-3">
-                <h3 className="font-bold text-sm text-white">Audit Progress Trend</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20 uppercase">
-                  History
+            
+            <GlassCard className="space-y-4">
+              <div className="flex items-center justify-between border-b border-[#00f0ff]/20 pb-3">
+                <h3 className="font-bold text-sm text-white">// SCORE_PROGRESS_TREND</h3>
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-[#00f0ff]/15 text-[#00f0ff] border border-[#00f0ff]/30 uppercase">
+                  [AUDIT_HISTORY]
                 </span>
               </div>
-              <div className="h-56">
+              <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={improvementTrend}>
                     <defs>
-                      <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="rgb(99, 102, 241)" stopOpacity={0.4}/>
-                        <stop offset="95%" stopColor="rgb(99, 102, 241)" stopOpacity={0.0}/>
+                      <linearGradient id="cyberArea" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#00f0ff" stopOpacity={0.5}/>
+                        <stop offset="95%" stopColor="#00f0ff" stopOpacity={0.0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.04)" />
-                    <XAxis dataKey="name" stroke="rgba(255, 255, 255, 0.3)" fontSize={11} tickLine={false} />
-                    <YAxis domain={[0, 100]} stroke="rgba(255, 255, 255, 0.3)" fontSize={11} axisLine={false} tickLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 240, 255, 0.08)" />
+                    <XAxis dataKey="name" stroke="rgba(0, 240, 255, 0.4)" fontSize={10} tickLine={false} />
+                    <YAxis domain={[0, 100]} stroke="rgba(0, 240, 255, 0.4)" fontSize={10} axisLine={false} tickLine={false} />
                     <Tooltip 
                       contentStyle={{ 
-                        backgroundColor: '#09090f', 
-                        borderColor: 'rgba(99, 102, 241, 0.3)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '11px'
+                        backgroundColor: '#070a12', 
+                        borderColor: '#00f0ff',
+                        borderRadius: '8px',
+                        color: '#00f0ff',
+                        fontSize: '11px',
+                        fontFamily: 'Share Tech Mono'
                       }}
                     />
                     <Area 
                       type="monotone" 
                       dataKey="score" 
-                      stroke="rgb(99, 102, 241)" 
+                      stroke="#00f0ff" 
                       strokeWidth={3} 
                       fillOpacity={1} 
-                      fill="url(#colorScore)"
-                      dot={{ r: 4, fill: "rgb(99, 102, 241)" }} 
+                      fill="url(#cyberArea)"
+                      dot={{ r: 4, fill: "#00f0ff" }} 
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </GlassCard>
 
-            <GlassCard className="space-y-5">
-              <div className="flex items-center justify-between border-b border-border/40 pb-3">
-                <h3 className="font-bold text-sm text-white">Competency Mapping</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/10 text-pink-400 border border-pink-500/20 uppercase">
-                  Audited
+            <GlassCard className="space-y-4">
+              <div className="flex items-center justify-between border-b border-[#00f0ff]/20 pb-3">
+                <h3 className="font-bold text-sm text-white">// COMPETENCY_WEIGHTS</h3>
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-[#ff007f]/15 text-[#ff007f] border border-[#ff007f]/30 uppercase">
+                  [AUDITED]
                 </span>
               </div>
-              <div className="h-56">
+              <div className="h-52">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={skillChartData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.04)" />
-                    <XAxis dataKey="name" stroke="rgba(255, 255, 255, 0.3)" fontSize={10} tickLine={false} />
-                    <YAxis domain={[0, 100]} stroke="rgba(255, 255, 255, 0.3)" fontSize={10} axisLine={false} tickLine={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0, 240, 255, 0.08)" />
+                    <XAxis dataKey="name" stroke="rgba(0, 240, 255, 0.4)" fontSize={9} tickLine={false} />
+                    <YAxis domain={[0, 100]} stroke="rgba(0, 240, 255, 0.4)" fontSize={9} axisLine={false} tickLine={false} />
                     <Tooltip
                       contentStyle={{ 
-                        backgroundColor: '#09090f', 
-                        borderColor: 'rgba(236, 72, 153, 0.3)',
-                        borderRadius: '12px',
-                        color: '#fff',
-                        fontSize: '11px'
+                        backgroundColor: '#070a12', 
+                        borderColor: '#ff007f',
+                        borderRadius: '8px',
+                        color: '#ff007f',
+                        fontSize: '11px',
+                        fontFamily: 'Share Tech Mono'
                       }}
                     />
-                    <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                       {skillChartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -529,108 +460,120 @@ export const Dashboard: React.FC = () => {
                 </ResponsiveContainer>
               </div>
             </GlassCard>
+
           </div>
 
         </div>
 
-        {/* Right Col (1 col wide): Security Status Checklist & Target Roles */}
+        {/* Right Column (1 Col): Critical Task Hazard Alert & Cyber Status */}
         <div className="space-y-8">
           
-          {/* Security & System Status Checklist */}
-          <GlassCard className="space-y-5">
-            <div className="flex items-center justify-between border-b border-border/40 pb-3">
-              <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Security & Status</span>
-              </h4>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-bold uppercase">
-                Active
+          {/* Cyber Hazard Stripe Alert Card */}
+          <GlassCard className="space-y-4 border-2 border-[#ffb800]/50 relative overflow-hidden">
+            <div className="cyber-hazard-stripe p-3 rounded-xl border border-[#ffb800]/30 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-[#ffb800] font-extrabold text-xs">
+                <AlertTriangle className="w-4 h-4 animate-bounce" />
+                <span>// CRITICAL_TASKS_CHECK</span>
+              </div>
+              <span className="px-2 py-0.5 rounded bg-[#ffb800]/20 text-[#ffb800] font-bold text-[9px] uppercase">
+                3 ALERTS
               </span>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-card-border/10 border border-border/20 flex items-center justify-between">
-                <span className="font-semibold text-white/90">FastAPI Service</span>
-                <span className="text-emerald-400 font-bold text-[11px] flex items-center gap-1">
-                  Online ✓
-                </span>
-              </div>
-              <div className="p-3 rounded-xl bg-card-border/10 border border-border/20 flex items-center justify-between">
-                <span className="font-semibold text-white/90">Google/GitHub OAuth</span>
-                <span className="text-emerald-400 font-bold text-[11px] flex items-center gap-1">
-                  Linked ✓
-                </span>
-              </div>
-              <div className="p-3 rounded-xl bg-card-border/10 border border-border/20 flex items-center justify-between">
-                <span className="font-semibold text-white/90">JWT 256-bit Auth</span>
-                <span className="text-emerald-400 font-bold text-[11px] flex items-center gap-1">
-                  Active ✓
-                </span>
-              </div>
-              <div className="p-3 rounded-xl bg-card-border/10 border border-border/20 flex items-center justify-between">
-                <span className="font-semibold text-white/90">RBAC Enforcement</span>
-                <span className="text-emerald-400 font-bold text-[11px] flex items-center gap-1">
-                  Enforced ✓
-                </span>
-              </div>
-            </div>
-          </GlassCard>
-
-          {/* Target Roles Matching */}
-          <GlassCard className="space-y-5">
-            <div className="flex items-center justify-between border-b border-border/40 pb-3">
-              <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                <Target className="w-4 h-4 text-pink-500" />
-                <span>Target Roles Fit</span>
-              </h4>
-              <span className="text-[10px] font-bold text-pink-400 uppercase">Match Score</span>
-            </div>
-
-            <div className="space-y-4">
-              {careerPaths.map(cp => (
-                <div key={cp.role} className="space-y-1.5 text-xs">
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-white/90">{cp.role}</span>
-                    <span className="text-primary font-bold">{cp.match}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-card-border/20 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-primary to-accent rounded-full" 
-                      style={{ width: `${cp.match}%` }}
-                    />
-                  </div>
-                  <span className="text-[10px] text-foreground/45 block truncate">Required Gap: {cp.gap}</span>
+            <div className="space-y-3 text-xs text-[#00f0ff]/80">
+              {analysis.feedback?.suggestions?.slice(0, 3).map((sug: string, idx: number) => (
+                <div key={idx} className="flex gap-2.5 items-start bg-[#070a12]/80 p-2.5 rounded-xl border border-[#00f0ff]/15">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#ffb800] mt-1.5 shrink-0" />
+                  <p className="leading-relaxed">{sug}</p>
                 </div>
               ))}
             </div>
 
             <button
-              onClick={() => navigate('/jobs')}
-              className="w-full flex items-center justify-center gap-2 py-2.5 border border-border/30 hover:bg-card-border/20 text-foreground font-semibold rounded-xl text-xs mt-2 transition-all"
+              onClick={() => navigate('/analyzer')}
+              className="cyber-button-tactical w-full py-2.5 bg-[#ffb800] text-black font-extrabold text-xs flex items-center justify-center gap-2"
             >
-              <span>Target Job Matcher</span>
-              <ArrowRight className="w-3.5 h-3.5 text-primary" />
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>[OPEN_AI_OPTIMIZER]</span>
             </button>
           </GlassCard>
 
-          {/* Audit Activity Logs */}
+          {/* Cyber Security Status Panel */}
           <GlassCard className="space-y-4">
-            <div className="flex items-center justify-between border-b border-border/40 pb-3">
-              <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                <Activity className="w-4 h-4 text-emerald-400" />
-                <span>Activity Stream</span>
+            <div className="flex items-center justify-between border-b border-[#00f0ff]/20 pb-3">
+              <h4 className="font-bold text-xs text-white flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#00ff66]" />
+                <span>// STATUS_CHECKLIST</span>
               </h4>
-              <span className="text-[10px] text-foreground/40 font-bold uppercase">Real-Time</span>
+              <span className="px-2 py-0.5 rounded bg-[#00ff66]/15 text-[#00ff66] text-[9px] font-bold uppercase">
+                SYSTEM_OK
+              </span>
+            </div>
+
+            <div className="space-y-2.5 text-xs">
+              <div className="p-2.5 rounded-xl bg-[#070a12] border border-[#00f0ff]/20 flex items-center justify-between">
+                <span className="text-[#00f0ff]/80">FastAPI Service</span>
+                <span className="text-[#00ff66] font-bold">ONLINE ✓</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#070a12] border border-[#00f0ff]/20 flex items-center justify-between">
+                <span className="text-[#00f0ff]/80">Google/GitHub OAuth</span>
+                <span className="text-[#00ff66] font-bold">LINKED ✓</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#070a12] border border-[#00f0ff]/20 flex items-center justify-between">
+                <span className="text-[#00f0ff]/80">JWT 256-bit Token</span>
+                <span className="text-[#00ff66] font-bold">ACTIVE ✓</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#070a12] border border-[#00f0ff]/20 flex items-center justify-between">
+                <span className="text-[#00f0ff]/80">RBAC Privilege</span>
+                <span className="text-[#00ff66] font-bold">ENFORCED ✓</span>
+              </div>
+            </div>
+          </GlassCard>
+
+          {/* Target Role Compliance */}
+          <GlassCard className="space-y-4">
+            <div className="flex items-center justify-between border-b border-[#00f0ff]/20 pb-3">
+              <h4 className="font-bold text-xs text-white flex items-center gap-2">
+                <Target className="w-4 h-4 text-[#ff007f]" />
+                <span>// TARGET_ROLE_FIT</span>
+              </h4>
+              <span className="text-[9px] font-bold text-[#ff007f] uppercase">MATCH</span>
+            </div>
+
+            <div className="space-y-3.5">
+              {careerPaths.map(cp => (
+                <div key={cp.role} className="space-y-1 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="font-bold text-white">{cp.role}</span>
+                    <span className="text-[#00f0ff] font-bold">{cp.match}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-[#070a12] rounded-full overflow-hidden border border-[#00f0ff]/20">
+                    <div 
+                      className="h-full bg-gradient-to-r from-[#00f0ff] to-[#ff007f] rounded-full" 
+                      style={{ width: `${cp.match}%` }}
+                    />
+                  </div>
+                  <span className="text-[9px] text-[#00f0ff]/50 block truncate">GAP: {cp.gap}</span>
+                </div>
+              ))}
+            </div>
+          </GlassCard>
+
+          {/* Real-time Audit Stream */}
+          <GlassCard className="space-y-4">
+            <div className="flex items-center justify-between border-b border-[#00f0ff]/20 pb-3">
+              <h4 className="font-bold text-xs text-white flex items-center gap-2">
+                <Terminal className="w-4 h-4 text-[#00f0ff]" />
+                <span>// AUDIT_STREAM</span>
+              </h4>
+              <span className="text-[9px] text-[#00ff66] font-bold uppercase animate-pulse">LIVE</span>
             </div>
             
-            <div className="space-y-3 text-xs">
+            <div className="space-y-2.5 text-[11px] font-mono">
               {recentLogs.slice(0, 3).map((log: any) => (
-                <div key={log.id} className="flex gap-2.5 items-start border-b border-border/10 pb-2.5 last:border-0 last:pb-0">
-                  <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
-                  <div className="min-w-0">
-                    <p className="font-bold text-white/80">{log.action}</p>
-                    <p className="text-[10px] text-foreground/50 truncate mt-0.5">{log.details}</p>
-                  </div>
+                <div key={log.id} className="p-2 rounded bg-[#070a12] border border-[#00f0ff]/15 space-y-0.5">
+                  <span className="text-[#00f0ff] font-bold">[{log.action.toUpperCase()}]</span>
+                  <p className="text-[#00f0ff]/60 text-[10px] truncate">{log.details}</p>
                 </div>
               ))}
             </div>
