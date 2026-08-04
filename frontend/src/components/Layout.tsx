@@ -18,7 +18,8 @@ import {
   Sun, 
   Moon, 
   ShieldAlert,
-  GraduationCap
+  GraduationCap,
+  AlertTriangle
 } from 'lucide-react';
 
 interface LayoutProps {
@@ -31,6 +32,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -43,12 +45,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
-  // Add Admin Route if user is admin
   if (user?.role === 'admin') {
     navigation.push({ name: 'Admin Panel', href: '/admin', icon: ShieldAlert });
   }
 
-  const handleLogout = () => {
+  const confirmLogout = () => {
+    setShowLogoutModal(false);
     logout();
     navigate('/login');
   };
@@ -57,12 +59,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="flex flex-col h-full">
       {/* Brand Logo */}
       <div className="flex items-center gap-3 px-6 py-6 border-b border-border">
-        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-primary to-accent text-white shadow-lg shadow-primary/20">
+        <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-lg shadow-amber-500/20">
           <GraduationCap className="w-5 h-5" />
         </div>
         <div>
-          <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Antigravity</span>
-          <span className="block text-[10px] text-foreground/50 font-semibold tracking-wider uppercase">Career Hub</span>
+          <span className="font-extrabold text-lg tracking-tight bg-gradient-to-r from-amber-400 to-yellow-200 bg-clip-text text-transparent">Antigravity</span>
+          <span className="block text-[10px] text-amber-500/60 font-semibold tracking-wider uppercase">Career Hub</span>
         </div>
       </div>
 
@@ -78,7 +80,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isActive
-                  ? 'bg-primary text-white shadow-md shadow-primary/20'
+                  ? 'bg-amber-500/20 border border-amber-500/35 text-amber-300 shadow-md shadow-amber-500/10'
                   : 'text-foreground/75 hover:bg-card-border hover:text-foreground'
               }`}
             >
@@ -95,7 +97,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <img 
             src={user?.avatar_url || 'https://api.dicebear.com/7.x/initials/svg?seed=User'} 
             alt="Avatar" 
-            className="w-10 h-10 rounded-xl object-cover ring-2 ring-primary/20"
+            className="w-10 h-10 rounded-xl object-cover ring-2 ring-amber-500/20"
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold truncate text-foreground">{user?.full_name || 'Career Specialist'}</p>
@@ -111,21 +113,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           >
             {theme === 'dark' ? (
               <>
-                <Sun className="w-3.5 h-3.5 text-yellow-500" />
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
                 <span>Light</span>
               </>
             ) : (
               <>
-                <Moon className="w-3.5 h-3.5 text-indigo-500" />
+                <Moon className="w-3.5 h-3.5 text-indigo-400" />
                 <span>Dark</span>
               </>
             )}
           </button>
 
-          {/* Logout button */}
+          {/* Logout button triggers modal popup */}
           <button
-            onClick={handleLogout}
-            className="p-2 rounded-lg border border-red-500/20 hover:bg-red-500/10 text-red-500 transition-colors"
+            onClick={() => setShowLogoutModal(true)}
+            className="p-2 rounded-lg border border-red-500/20 hover:bg-red-500/15 text-red-500 transition-colors"
             title="Log Out"
           >
             <LogOut className="w-4 h-4" />
@@ -137,10 +139,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="flex min-h-screen bg-transparent relative">
-      {/* Premium Obsidian Dark Background & Grids */}
+      {/* Dark Amber Background & Grids */}
       <div className="premium-bg-container">
         <div className="premium-grid-overlay" />
       </div>
+
       {/* Desktop Sidebar */}
       <aside className="hidden lg:block w-64 border-r border-border glass-card shrink-0 fixed h-screen z-30">
         <SidebarContent />
@@ -151,10 +154,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Top Navbar */}
         <header className="lg:hidden h-16 border-b border-border flex items-center justify-between px-6 bg-card sticky top-0 z-30">
           <div className="flex items-center gap-3">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-primary to-accent text-white">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950">
               <GraduationCap className="w-4.5 h-4.5" />
             </div>
-            <span className="font-extrabold text-md tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Antigravity</span>
+            <span className="font-extrabold text-md tracking-tight bg-gradient-to-r from-amber-400 to-yellow-200 bg-clip-text text-transparent">Antigravity</span>
           </div>
 
           <button
@@ -175,7 +178,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <AnimatePresence>
         {mobileOpen && (
           <>
-            {/* Backdrop */}
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -183,7 +185,6 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               onClick={() => setMobileOpen(false)}
               className="fixed inset-0 bg-black/60 z-40 lg:hidden"
             />
-            {/* Drawer */}
             <motion.aside 
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
@@ -200,6 +201,58 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <SidebarContent />
             </motion.aside>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Logout Confirmation Modal Popup */}
+      <AnimatePresence>
+        {showLogoutModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowLogoutModal(false)}
+              className="fixed inset-0 bg-black/75 backdrop-blur-md"
+            />
+
+            {/* Glassmorphic Modal Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.25 }}
+              className="w-full max-w-sm bg-[#12100a]/95 border border-amber-500/25 rounded-3xl p-6 shadow-2xl relative z-10 backdrop-blur-xl text-center space-y-5"
+            >
+              <div className="mx-auto w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/25 flex items-center justify-center text-red-400">
+                <LogOut className="w-6 h-6" />
+              </div>
+
+              <div className="space-y-1.5">
+                <h3 className="text-xl font-bold text-white tracking-tight">Confirm Log Out</h3>
+                <p className="text-xs text-foreground/60 leading-relaxed">
+                  Are you sure you want to end your active session and sign out of your workspace?
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  onClick={() => setShowLogoutModal(false)}
+                  className="w-full py-3 px-4 rounded-xl border border-border/40 hover:bg-card-border/30 text-white font-semibold text-xs transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmLogout}
+                  className="w-full py-3 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/20 transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>
