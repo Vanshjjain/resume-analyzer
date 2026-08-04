@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { AIAgentWidget } from './AIAgentWidget';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LayoutDashboard, 
@@ -306,6 +307,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Floating AI Cyberpunk Assistant Agent Widget */}
+      <AIAgentWidget />
     </div>
   );
 };
