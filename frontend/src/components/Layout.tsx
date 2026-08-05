@@ -16,8 +16,6 @@ import {
   LogOut, 
   Menu, 
   X, 
-  Sun, 
-  Moon, 
   ShieldAlert,
   Terminal,
   Cpu

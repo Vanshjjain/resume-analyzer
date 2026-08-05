@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X, Send, Sparkles, Terminal, Cpu, Zap, ChevronRight, HelpCircle, User, ShieldCheck } from 'lucide-react';
+import { Bot, X, Send, Sparkles, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 interface Message {

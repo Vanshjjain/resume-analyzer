@@ -3,10 +3,7 @@ import axios from 'axios';
 import { GlassCard } from '../components/GlassCard';
 import { useAuth } from '../context/AuthContext';
 import { 
-  Mail, 
-  Award, 
   Clock, 
-  FileText, 
   Shield, 
   Key, 
   Smartphone, 
@@ -15,7 +12,6 @@ import {
   Trash2, 
   Plus, 
   User as UserIcon,
-  Sparkles,
   Lock,
   Globe
 } from 'lucide-react';
@@ -24,6 +20,7 @@ export const Profile: React.FC = () => {
   const { user, updateProfile } = useAuth();
   const [stats, setStats] = useState<any>({ resumes: 0, average_score: 84 });
   const [isLoading, setIsLoading] = useState(true);
+  void stats;
   
   // Profile Form state
   const [fullName, setFullName] = useState(user?.full_name || '');

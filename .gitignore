@@ -3,13 +3,19 @@ node_modules/
 dist/
 .env
 .env.local
+*.env
+backend/.env
+frontend/.env
+
+# Node & Tool Temp Directories
+.node/
 
 # Python caches and compiled files
 **/__pycache__/
 **/*.pyc
 *.pyc
 
-# Local Databases
+# Local Databases & Uploads
 **/*.db
 *.db
 backend/app.db

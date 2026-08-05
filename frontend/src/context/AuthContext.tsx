@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { supabase } from '../lib/supabaseClient';
 
 interface UserResponse {
   id: number;
@@ -141,6 +142,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const googleSignIn = async (email: string, name: string, avatar?: string) => {
+    if (supabase) {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'google',
+          options: {
+            redirectTo: window.location.origin + '/dashboard'
+          }
+        });
+        if (!error) return;
+      } catch (e) {
+        console.warn("Supabase Google OAuth fallback triggered:", e);
+      }
+    }
     try {
       const response = await axios.post('/api/auth/google', {
         email: email || 'vanshjain50355@gmail.com',
@@ -168,6 +182,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const githubSignIn = async (email?: string, name?: string, avatar?: string) => {
+    if (supabase) {
+      try {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider: 'github',
+          options: {
+            redirectTo: window.location.origin + '/dashboard'
+          }
+        });
+        if (!error) return;
+      } catch (e) {
+        console.warn("Supabase GitHub OAuth fallback triggered:", e);
+      }
+    }
     try {
       const response = await axios.post('/api/auth/github', {
         email: email || 'vanshjain50355@gmail.com',

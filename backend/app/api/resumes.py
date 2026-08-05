@@ -5,7 +5,7 @@ from app.core.security import get_current_user
 from app.models.database import User, Resume, ResumeVersion, ActivityLog
 from app.schemas.resumes import ResumeResponse, ResumeVersionResponse
 from app.services.parser import extract_text_from_pdf, extract_text_from_docx, parse_resume_data
-from app.services.storage import save_uploaded_file
+from app.services.storage import save_uploaded_file, prepare_local_file_for_parsing, delete_stored_file
 from typing import List, Any
 import os
 
@@ -22,8 +22,6 @@ def validate_file(file: UploadFile):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Invalid file format. Only PDF and DOCX files are allowed."
         )
-    # Check file size (FastAPI does not parse size immediately, we check it as we read or assume size)
-    # We can get size by seeking or checking content-length header
     size = 0
     try:
         file.file.seek(0, 2)
@@ -56,7 +54,7 @@ def upload_resume(
     db.commit()
     db.refresh(new_resume)
     
-    # 2. Save physical file
+    # 2. Save file to storage (Local or Supabase Storage)
     try:
         file_path = save_uploaded_file(file, new_resume.id, version_name)
     except Exception as e:
@@ -67,16 +65,27 @@ def upload_resume(
     # 3. Extract text and parse
     _, ext = os.path.splitext(file.filename.lower())
     raw_text = ""
-    if ext == ".pdf":
-        raw_text = extract_text_from_pdf(file_path)
-    else:
-        raw_text = extract_text_from_docx(file_path)
-        
+    local_path, is_temp = prepare_local_file_for_parsing(file_path)
+    try:
+        if ext == ".pdf":
+            raw_text = extract_text_from_pdf(local_path)
+        else:
+            raw_text = extract_text_from_docx(local_path)
+    finally:
+        if is_temp and os.path.exists(local_path):
+            try:
+                os.remove(local_path)
+            except Exception:
+                pass
+
     parsed_data = parse_resume_data(raw_text)
     
     # Calculate file size text
-    size_mb = os.path.getsize(file_path) / (1024 * 1024)
-    file_size_str = f"{size_mb:.2f} MB"
+    file.file.seek(0, 2)
+    bytes_len = file.file.tell()
+    file.file.seek(0)
+    size_mb = bytes_len / (1024 * 1024)
+    file_size_str = f"{size_mb:.2f} MB" if size_mb > 0.01 else f"{bytes_len / 1024:.1f} KB"
     
     # 4. Create ResumeVersion entry
     new_version = ResumeVersion(
@@ -132,14 +141,26 @@ def upload_new_version(
     
     _, ext = os.path.splitext(file.filename.lower())
     raw_text = ""
-    if ext == ".pdf":
-        raw_text = extract_text_from_pdf(file_path)
-    else:
-        raw_text = extract_text_from_docx(file_path)
-        
+    local_path, is_temp = prepare_local_file_for_parsing(file_path)
+    try:
+        if ext == ".pdf":
+            raw_text = extract_text_from_pdf(local_path)
+        else:
+            raw_text = extract_text_from_docx(local_path)
+    finally:
+        if is_temp and os.path.exists(local_path):
+            try:
+                os.remove(local_path)
+            except Exception:
+                pass
+
     parsed_data = parse_resume_data(raw_text)
-    size_mb = os.path.getsize(file_path) / (1024 * 1024)
-    file_size_str = f"{size_mb:.2f} MB"
+    
+    file.file.seek(0, 2)
+    bytes_len = file.file.tell()
+    file.file.seek(0)
+    size_mb = bytes_len / (1024 * 1024)
+    file_size_str = f"{size_mb:.2f} MB" if size_mb > 0.01 else f"{bytes_len / 1024:.1f} KB"
     
     new_version = ResumeVersion(
         resume_id=resume_id,
@@ -197,13 +218,9 @@ def delete_resume(resume_id: int, db: Session = Depends(get_db), current_user: U
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
         
-    # Delete physical files
+    # Delete physical/bucket files
     for version in resume.versions:
-        try:
-            if os.path.exists(version.file_path):
-                os.remove(version.file_path)
-        except Exception as e:
-            print(f"Error removing file {version.file_path}: {e}")
+        delete_stored_file(version.file_path)
             
     db.delete(resume)
     db.commit()

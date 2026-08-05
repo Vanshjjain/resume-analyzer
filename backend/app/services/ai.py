@@ -2,16 +2,81 @@ import os
 import json
 import re
 from typing import Dict, Any, List, Optional
-from openai import OpenAI
 from app.core.config import settings
 
-# Initialize OpenAI Client (if key is set)
-client = None
-if settings.OPENAI_API_KEY:
-    try:
-        client = OpenAI(api_key=settings.OPENAI_API_KEY)
-    except Exception as e:
-        print(f"Failed to initialize OpenAI client: {e}")
+# Try importing official modern google.genai SDK first, fallback to google.generativeai
+try:
+    from google import genai
+    from google.genai import types
+    HAS_GENAI_SDK = True
+except ImportError:
+    genai = None
+    types = None
+    HAS_GENAI_SDK = False
+
+try:
+    import google.generativeai as legacy_genai
+except ImportError:
+    legacy_genai = None
+
+def call_gemini_json(prompt: str, system_instruction: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    api_key = settings.GEMINI_API_KEY or settings.GOOGLE_API_KEY
+    if not api_key:
+        return None
+
+    # 1. Try modern google-genai SDK
+    if HAS_GENAI_SDK and genai:
+        try:
+            client = genai.Client(api_key=api_key)
+            config = None
+            if system_instruction or types:
+                config = types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    system_instruction=system_instruction
+                ) if types else {"response_mime_type": "application/json"}
+
+            # Try models in order of preference
+            for model_name in ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]:
+                try:
+                    response = client.models.generate_content(
+                        model=model_name,
+                        contents=prompt,
+                        config=config
+                    )
+                    text = response.text.strip()
+                    if text.startswith("```json"):
+                        text = text[7:]
+                    if text.endswith("```"):
+                        text = text[:-3]
+                    return json.loads(text.strip())
+                except Exception as inner_e:
+                    print(f"Gemini model {model_name} attempt error: {inner_e}")
+                    continue
+        except Exception as e:
+            print(f"Modern google-genai SDK request failed: {e}")
+
+    # 2. Fallback to legacy google-generativeai SDK
+    if legacy_genai:
+        try:
+            legacy_genai.configure(api_key=api_key)
+            model = legacy_genai.GenerativeModel(
+                model_name="gemini-1.5-flash",
+                system_instruction=system_instruction
+            )
+            response = model.generate_content(
+                prompt,
+                generation_config={"response_mime_type": "application/json"}
+            )
+            text = response.text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.endswith("```"):
+                text = text[:-3]
+            return json.loads(text.strip())
+        except Exception as e:
+            print(f"Legacy google-generativeai SDK request failed: {e}")
+
+    return None
 
 # Heuristic list of Action Verbs
 ACTION_VERBS = [
@@ -26,7 +91,7 @@ ROLE_SKILLS = {
     "Backend Developer": ["Python", "Node.js", "Express", "Django", "Flask", "FastAPI", "Go", "Java", "SQL", "PostgreSQL", "MongoDB", "REST API", "Docker"],
     "Full Stack Developer": ["React", "TypeScript", "Node.js", "Express", "FastAPI", "SQL", "PostgreSQL", "Git", "Docker", "AWS", "Tailwind CSS"],
     "Software Engineer": ["C++", "Java", "C#", "Go", "Python", "SQL", "Git", "Data Structures", "Algorithms", "Docker", "Linux"],
-    "AI Engineer": ["Python", "Machine Learning", "Deep Learning", "TensorFlow", "PyTorch", "NLP", "spaCy", "OpenAI", "LLMs", "LangChain", "SQL"],
+    "AI Engineer": ["Python", "Machine Learning", "Deep Learning", "TensorFlow", "PyTorch", "NLP", "spaCy", "Gemini AI", "LLMs", "LangChain", "SQL"],
     "Machine Learning Engineer": ["Python", "R", "Scikit-Learn", "TensorFlow", "PyTorch", "MLOps", "Docker", "Kubernetes", "Data Analysis", "SQL"],
     "Data Analyst": ["Python", "R", "SQL", "Excel", "Tableau", "Power BI", "Pandas", "NumPy", "Data Visualization", "Statistics"],
     "Data Scientist": ["Python", "R", "SQL", "Machine Learning", "Statistics", "Pandas", "NumPy", "Scikit-Learn", "Deep Learning", "Data Analysis"],
@@ -36,7 +101,6 @@ ROLE_SKILLS = {
 
 # ----------------- Helper Heuristics (Deterministic Fallback) -----------------
 def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str, Any]:
-    # Calculate category scores
     formatting = 100
     sections = 100
     keywords = 0
@@ -50,7 +114,6 @@ def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str,
     missing_keywords = []
     suggestions = []
 
-    # Check sections completeness
     critical_sections = ["skills", "education", "experience", "projects"]
     for sec in critical_sections:
         if not parsed_data.get(sec) or len(parsed_data.get(sec)) == 0:
@@ -58,13 +121,11 @@ def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str,
             missing_sections.append(sec.capitalize())
             suggestions.append(f"Add a dedicated '{sec.capitalize()}' section to your resume.")
 
-    # Check optional sections
     optional_sections = ["certifications", "languages", "achievements"]
     for sec in optional_sections:
         if not parsed_data.get(sec) or len(parsed_data.get(sec)) == 0:
             suggestions.append(f"Consider adding a '{sec.capitalize()}' section to stand out.")
 
-    # Keywords score (based on skill count)
     skill_count = len(parsed_data.get("skills", []))
     if skill_count >= 10:
         keywords = 95
@@ -75,7 +136,6 @@ def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str,
         missing_keywords.extend(["Docker", "AWS", "TypeScript", "FastAPI", "CI/CD"])
         suggestions.append("Add relevant technology keywords corresponding to modern software engineering roles (e.g. AWS, CI/CD, TypeScript).")
 
-    # Action Verbs check
     text_lower = raw_text.lower()
     verbs_found = [verb for verb in ACTION_VERBS if verb in text_lower]
     if len(verbs_found) >= 8:
@@ -87,7 +147,6 @@ def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str,
         action_verbs_score = 40
         suggestions.append("Your experience bullets seem passive. Rewrite descriptions starting each bullet point with a strong action verb.")
 
-    # Quality of Experience & Projects
     exp_len = len(parsed_data.get("experience", []))
     if exp_len > 10:
         experience_quality = 90
@@ -106,7 +165,6 @@ def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str,
         project_quality = 55
         suggestions.append("Add 1-2 more engineering projects showcasing your hands-on coding and systems skills.")
 
-    # Formatting and grammar heuristic checks
     if len(raw_text) > 8000:
         formatting -= 15
         suggestions.append("Your resume text is very long. Condense it to keep it under 2 pages (ideally 1 page for less than 5 years of experience).")
@@ -119,7 +177,6 @@ def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str,
         formatting -= 10
         suggestions.append("Include links to your professional profiles, such as LinkedIn and GitHub, to verify your background and work.")
 
-    # Calculate overall ATS score
     ats_score = int(
         (formatting * 0.15) +
         (sections * 0.20) +
@@ -154,63 +211,44 @@ def heuristic_ats_score(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str,
 # ----------------- Public AI Service Interface -----------------
 
 def analyze_resume_ats(parsed_data: Dict[str, Any], raw_text: str) -> Dict[str, Any]:
-    if client:
-        try:
-            prompt = f"""
-            Analyze the following resume parsed details and raw text for ATS compatibility.
-            Return a JSON object containing:
-            1. 'ats_score': an integer from 0 to 100.
-            2. 'category_scores': dictionary with keys 'formatting', 'sections', 'keywords', 'readability', 'grammar', 'action_verbs', 'experience_quality', 'project_quality'.
-            3. 'feedback': dictionary with keys 'suggestions' (list of strings), 'missing_sections' (list of strings), 'missing_keywords' (list of strings).
+    prompt = f"""
+    Analyze the following resume parsed details and raw text for ATS compatibility.
+    Return a JSON object containing:
+    1. 'ats_score': an integer from 0 to 100.
+    2. 'category_scores': dictionary with keys 'formatting', 'sections', 'keywords', 'readability', 'grammar', 'action_verbs', 'experience_quality', 'project_quality'.
+    3. 'feedback': dictionary with keys 'suggestions' (list of strings), 'missing_sections' (list of strings), 'missing_keywords' (list of strings).
 
-            Resume Parsed Data:
-            {json.dumps(parsed_data)}
+    Resume Parsed Data:
+    {json.dumps(parsed_data)}
 
-            Resume Text:
-            {raw_text[:4000]}
-            """
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are an expert ATS (Applicant Tracking System) parser and resume optimizer. Return ONLY valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            print(f"OpenAI analysis failed: {e}. Falling back to heuristics...")
+    Resume Text:
+    {raw_text[:4000]}
+    """
+    system_inst = "You are an expert ATS (Applicant Tracking System) parser and resume optimizer powered by Google Gemini. Return ONLY valid JSON."
+    res = call_gemini_json(prompt, system_inst)
+    if res and "ats_score" in res:
+        return res
 
     return heuristic_ats_score(parsed_data, raw_text)
 
 
 def rewrite_resume_section(section_type: str, text: str) -> Dict[str, Any]:
-    if client:
-        try:
-            prompt = f"""
-            As an expert career coach, rewrite the following resume {section_type} text.
-            Optimize it to sound professional, highlight measurable accomplishments, and add strong action verbs.
-            Return a JSON object containing:
-            1. 'rewritten_text': the optimized description
-            2. 'action_verbs_added': list of new action verbs included
-            3. 'improvements_made': list of key adjustments made
-            
-            Text:
-            "{text}"
-            """
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a professional resume writer. Return ONLY valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            print(f"OpenAI rewriting failed: {e}. Falling back to template...")
+    prompt = f"""
+    As an expert career coach, rewrite the following resume {section_type} text.
+    Optimize it to sound professional, highlight measurable accomplishments, and add strong action verbs.
+    Return a JSON object containing:
+    1. 'rewritten_text': the optimized description
+    2. 'action_verbs_added': list of new action verbs included
+    3. 'improvements_made': list of key adjustments made
+    
+    Text:
+    "{text}"
+    """
+    system_inst = "You are a professional resume writer powered by Google Gemini AI. Return ONLY valid JSON."
+    res = call_gemini_json(prompt, system_inst)
+    if res and "rewritten_text" in res:
+        return res
 
-    # Heuristic Fallback Rewrite
     improvements = ["Swapped weak verbs with high-impact industry verbs.", "Strengthened phrasing for professional delivery."]
     verbs = ["Optimized", "Architected", "Spearheaded"]
     
@@ -272,37 +310,26 @@ def match_job_description(parsed_data: Dict[str, Any], jd: str) -> Dict[str, Any
             "suggestions": ["Please enter a job description to perform matching."]
         }
 
-    if client:
-        try:
-            prompt = f"""
-            Analyze the similarity between the parsed resume and the job description.
-            Return a JSON object with:
-            1. 'match_percentage': an integer from 0 to 100.
-            2. 'ats_compatibility': an integer from 0 to 100.
-            3. 'missing_keywords': list of key terms/words in JD missing in resume text.
-            4. 'missing_technical_skills': list of tech skills missing.
-            5. 'suggestions': list of recommendations for resume optimization.
+    prompt = f"""
+    Analyze the similarity between the parsed resume and the job description.
+    Return a JSON object with:
+    1. 'match_percentage': an integer from 0 to 100.
+    2. 'ats_compatibility': an integer from 0 to 100.
+    3. 'missing_keywords': list of key terms/words in JD missing in resume text.
+    4. 'missing_technical_skills': list of tech skills missing.
+    5. 'suggestions': list of recommendations for resume optimization.
 
-            Resume Skills: {json.dumps(parsed_data.get('skills', []))}
-            Job Description: {jd[:4000]}
-            """
-            response = client.chat.completions.create(
-                model="gpt-4",
-                messages=[
-                    {"role": "system", "content": "You are a professional technical recruiter. Return ONLY valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                response_format={"type": "json_object"}
-            )
-            return json.loads(response.choices[0].message.content)
-        except Exception as e:
-            print(f"OpenAI job match failed: {e}. Falling back to heuristics...")
+    Resume Skills: {json.dumps(parsed_data.get('skills', []))}
+    Job Description: {jd[:4000]}
+    """
+    system_inst = "You are a professional technical recruiter powered by Google Gemini AI. Return ONLY valid JSON."
+    res = call_gemini_json(prompt, system_inst)
+    if res and "match_percentage" in res:
+        return res
 
-    # Heuristic match
     skills = [s.lower() for s in parsed_data.get("skills", [])]
     jd_lower = jd.lower()
 
-    # Find keywords in JD
     all_target_skills = []
     for role, role_skills in ROLE_SKILLS.items():
         all_target_skills.extend(role_skills)
@@ -319,7 +346,6 @@ def match_job_description(parsed_data: Dict[str, Any], jd: str) -> Dict[str, Any
             else:
                 missing_skills.append(skill)
 
-    # Score calculation
     total_needed = len(matched_skills) + len(missing_skills)
     match_percentage = 40
     if total_needed > 0:
@@ -344,7 +370,6 @@ def match_job_description(parsed_data: Dict[str, Any], jd: str) -> Dict[str, Any
 
 
 def recommend_job_roles(parsed_data: Dict[str, Any]) -> List[Dict[str, Any]]:
-    # Compare resume skills with each role's skills
     skills = set([s.lower() for s in parsed_data.get("skills", [])])
     recommendations = []
 
@@ -352,7 +377,6 @@ def recommend_job_roles(parsed_data: Dict[str, Any]) -> List[Dict[str, Any]]:
         role_skills_set = set([s.lower() for s in role_skills])
         overlap = skills & role_skills_set
         
-        # Calculate fit percentage
         match_pct = 30
         if role_skills_set:
             match_pct = int((len(overlap) / len(role_skills_set)) * 100)
@@ -377,15 +401,12 @@ def recommend_job_roles(parsed_data: Dict[str, Any]) -> List[Dict[str, Any]]:
             "learning_roadmap": roadmap
         })
 
-    # Sort by match percentage desc
     recommendations.sort(key=lambda x: x["match_percentage"], reverse=True)
-    return recommendations[:5]  # top 5 recommendations
+    return recommendations[:5]
 
 
 def analyze_skill_gap(parsed_data: Dict[str, Any], target_role: str) -> Dict[str, Any]:
     skills = set([s.lower() for s in parsed_data.get("skills", [])])
-    
-    # Get role skills or fallback to general tech skills
     role_skills = ROLE_SKILLS.get(target_role, ["Python", "SQL", "Git", "Docker", "REST API"])
     role_skills_set = set([s.lower() for s in role_skills])
 
@@ -422,7 +443,6 @@ def analyze_skill_gap(parsed_data: Dict[str, Any], target_role: str) -> Dict[str
 
 
 def generate_interview_questions(parsed_data: Dict[str, Any], target_role: str) -> List[Dict[str, Any]]:
-    # Create list of customized interview questions based on targets and parsed skills
     skills_str = ", ".join(parsed_data.get("skills", ["Software Engineering"]))
     
     questions = [

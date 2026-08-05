@@ -38,6 +38,7 @@ export const Dashboard: React.FC = () => {
   const [recentLogs, setRecentLogs] = useState<any[]>([]);
   const [adminMetrics, setAdminMetrics] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  void adminMetrics;
   const [error, setError] = useState<string | null>(null);
 
   // ATS score & analysis default states
